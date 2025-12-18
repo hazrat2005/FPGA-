@@ -1,0 +1,29 @@
+module MainUnit (
+    input  wire sys_clk,
+    input  wire rst_btn,
+    input  wire key_btn,
+    output wire [6:0] seg_lines,
+    output wire [5:0] dig_lines,
+    output wire led_out
+);
+
+    wire detect_pulse;
+    wire [2:0] st_code;
+
+    SeqController_Slow fsm_core (
+        .clk_in(sys_clk),
+        .rst_in(rst_btn),
+        .sig_in(key_btn),
+        .flag_out(detect_pulse),
+        .curr_state(st_code)
+    );
+
+    assign led_out = detect_pulse;
+
+    SevenSegMapper seg_core (
+        .data_in(st_code),
+        .seg_bus(seg_lines),
+        .dig_sel(dig_lines)
+    );
+
+endmodule
