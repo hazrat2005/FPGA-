@@ -1,0 +1,55 @@
+module SeqController_Slow (
+    input  wire clk_in,
+    input  wire rst_in,
+    input  wire sig_in,
+    output reg  flag_out,
+    output reg [2:0] curr_state
+);
+
+    reg clk_slow = 1'b0;
+    reg [24:0] cnt = 25'd0;
+
+    always @(posedge clk_in) begin
+        if (rst_in) begin
+            cnt      <= 25'd0;
+            clk_slow <= 1'b0;
+        end else begin
+            cnt <= cnt + 25'd1;
+            if (cnt == 25'h1FF_FFFF) begin
+                cnt      <= 25'd0;
+                clk_slow <= ~clk_slow;
+            end
+        end
+    end
+
+    localparam A0 = 3'b000,
+               A1 = 3'b001,
+               A2 = 3'b010,
+               A3 = 3'b011,
+               A4 = 3'b100;
+
+    reg [2:0] next_st;
+
+    always @(*) begin
+        case (curr_state)
+            A0: next_st = sig_in ? A1 : A0;
+            A1: next_st = sig_in ? A1 : A2;
+            A2: next_st = sig_in ? A3 : A0;
+            A3: next_st = sig_in ? A1 : A4;
+            A4: next_st = sig_in ? A0 : A2;
+            default: next_st = A0;
+        endcase
+    end
+
+    always @(posedge clk_slow or posedge rst_in) begin
+        if (rst_in)
+            curr_state <= A0;
+        else
+            curr_state <= next_st;
+    end
+
+    always @(*) begin
+        flag_out = (curr_state == A4);
+    end
+
+endmodule
