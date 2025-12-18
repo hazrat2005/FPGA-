@@ -1,0 +1,61 @@
+`timescale 1ns/1ps
+
+module SeqController_Slow_tb;
+
+    reg  sys_clk;
+    reg  reset;
+    reg  sig_in;
+    wire flag_out;
+    wire [2:0] curr_state;
+
+    SeqController_Slow dut (
+        .clk_in(sys_clk),
+        .rst_in(reset),
+        .sig_in(sig_in),
+        .flag_out(flag_out),
+        .curr_state(curr_state)
+    );
+
+    always #5 sys_clk = ~sys_clk;
+
+    task push_bit(input b);
+    begin
+        sig_in = b;
+        dut.clk_slow = 0; #10;
+        dut.clk_slow = 1; #10;
+    end
+    endtask
+
+    initial begin
+        sys_clk = 0;
+        reset   = 1;
+        sig_in  = 0;
+
+        #20;
+        reset = 0;
+
+        push_bit(1);
+        push_bit(0);
+        push_bit(1);
+        push_bit(1);
+        push_bit(0);
+
+        push_bit(0);
+        push_bit(1);
+        push_bit(0);
+        push_bit(1);
+
+        push_bit(1);
+        push_bit(1);
+        push_bit(0);
+        push_bit(0);
+        push_bit(1);
+        push_bit(0);
+        push_bit(1);
+        push_bit(1);
+
+        #100;
+        $finish;
+    end
+
+endmodule
