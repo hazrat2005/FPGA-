@@ -1,0 +1,23 @@
+module SevenSegMapper (
+    input  wire [2:0] data_in,
+    output reg  [6:0] seg_bus,
+    output wire [5:0] dig_sel
+);
+
+    assign dig_sel = 6'b111110;
+
+    always @(*) begin
+        case (data_in)
+            3'b000: seg_bus = 7'b1111001;
+            3'b001: seg_bus = 7'b0100100;
+            3'b010: seg_bus = 7'b0110000;
+            3'b011: seg_bus = 7'b0011001;
+            3'b100: seg_bus = 7'b0010010;
+            3'b101: seg_bus = 7'b0000010;
+            3'b110: seg_bus = 7'b1111000;
+            3'b111: seg_bus = 7'b1000000;
+            default: seg_bus = 7'b1111111;
+        endcase
+    end
+
+endmodule
